@@ -1,0 +1,15 @@
+# Build output
+bin/
+obj/
+dist/
+
+# IDE / OS
+.vs/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Never commit packaged builds
+*.zip

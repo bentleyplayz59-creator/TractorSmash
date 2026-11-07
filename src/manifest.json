@@ -1,0 +1,12 @@
+{
+  "Name": "Tractor Smash",
+  "Author": "BentleyPlayz",
+  "Version": "1.0.0",
+  "Description": "Companion for Tractor Mod: while riding the tractor, rocks, trees, stumps, twigs, weeds and bushes in range are smashed and crops are watered, with no tools in hand.",
+  "UniqueID": "BentleyPlayz.TractorSmash",
+  "EntryDll": "TractorSmash.dll",
+  "MinimumApiVersion": "4.0.0",
+  "Dependencies": [
+    { "UniqueID": "Pathoschild.TractorMod", "IsRequired": false }
+  ]
+}

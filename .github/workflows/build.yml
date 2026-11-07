@@ -1,0 +1,49 @@
+name: Build mod
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Official SMAPI build environment (provides the game/SMAPI reference assemblies).
+      # No inputs are passed: only the defaults documented by the action are used.
+      - name: Add SMAPI build environment
+        uses: Pathoschild/SMAPI-ModBuildWorkflow/add-build-environment@v1
+
+      # Pathoschild.Stardew.ModBuildConfig (4.3.2) restores with this and creates the release ZIP.
+      # Compilation errors show up in this step's log as "error CSxxxx" lines and fail the job.
+      - name: Build (Release)
+        working-directory: src
+        run: dotnet build --configuration Release
+
+      - name: Verify the packaged ZIP
+        run: |
+          ZIP="$(find src/bin -name '*.zip' -type f | head -n 1)"
+          if [ -z "$ZIP" ]; then
+            echo "::error::Build succeeded but no ZIP was produced under src/bin"
+            exit 1
+          fi
+          echo "ZIP: $ZIP"
+          unzip -l "$ZIP"
+          unzip -Z1 "$ZIP" | grep -qx 'TractorSmash/TractorSmash.dll'  || { echo "::error::TractorSmash.dll missing from ZIP";  exit 1; }
+          unzip -Z1 "$ZIP" | grep -qx 'TractorSmash/manifest.json'     || { echo "::error::manifest.json missing from ZIP"; exit 1; }
+          echo "ZIP layout OK"
+
+      # Official action from the SMAPI build workflow, as requested.
+      - name: Upload release artifacts (SMAPI workflow)
+        uses: Pathoschild/SMAPI-ModBuildWorkflow/upload-release-artifacts@v1
+
+      # Standard GitHub action so the ZIP is always downloadable from the run's "Artifacts" section.
+      - name: Upload ZIP as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TractorSmash-mod
+          path: src/bin/**/*.zip
+          if-no-files-found: error
