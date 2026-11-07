@@ -36,6 +36,11 @@ jobs:
           unzip -Z1 "$ZIP" | grep -qx 'TractorSmash/manifest.json'     || { echo "::error::manifest.json missing from ZIP"; exit 1; }
           echo "ZIP layout OK"
 
+      - name: Stage ZIP for SMAPI artifact uploader
+        run: |
+          mkdir -p _releases
+          find src/bin -type f -name "*.zip" -exec cp {} _releases/ \;
+
       # Official action from the SMAPI build workflow, as requested.
       - name: Upload release artifacts (SMAPI workflow)
         uses: Pathoschild/SMAPI-ModBuildWorkflow/upload-release-artifacts@v1
